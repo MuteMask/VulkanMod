@@ -137,15 +137,10 @@ public abstract class Queue {
             }
 
             if (indices.presentFamily == -1) {
-                // Some drivers will not show present support even if some queue supports it
-                // Use compute queue as fallback
-
                 indices.presentFamily = indices.computeFamily;
                 Initializer.LOGGER.warn("Using compute queue as present fallback");
             }
 
-            // In case there's no dedicated transfer queue, we need choose another one
-            // preferably a different one from the already selected queues
             if (indices.transferFamily == -1) {
 
                 int transferIndex = -1;
@@ -167,8 +162,11 @@ public abstract class Queue {
                     }
                 }
 
-                if (transferIndex == -1)
-                    throw new RuntimeException("Failed to find queue family with transfer support");
+                if (transferIndex == -1) {
+                    // Fallback: per Vulkan spec, graphics queues implicitly support transfer
+                    transferIndex = indices.graphicsFamily;
+                    Initializer.LOGGER.warn("No dedicated transfer queue found, falling back to graphics queue");
+                }
 
                 indices.transferFamily = transferIndex;
             }
