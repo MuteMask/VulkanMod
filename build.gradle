@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.13.3'
+	id 'fabric-loom' version '1.14-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -10,6 +10,12 @@ base {
 	archivesName = project.archives_base_name
 }
 
+repositories {
+	maven { url "https://maven.fabricmc.net/" }
+	mavenCentral()
+	maven { url "https://libraries.minecraft.net/" }
+}
+
 loom {
 	accessWidenerPath = file("src/main/resources/vulkanmod.accesswidener")
 }
@@ -18,10 +24,10 @@ dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings loom.officialMojangMappings()
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}\n"
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	
 	// Fabric API.
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}\n"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 	ext.includeModule = { name ->
 		var module = fabricApi.module(name, project.fabric_version)
@@ -34,7 +40,7 @@ dependencies {
 	includeModule("fabric-resource-loader-v1")
 	includeModule("fabric-rendering-v1")
 	includeModule("fabric-rendering-fluids-v1")
-    includeModule("fabric-block-view-api-v2")
+	includeModule("fabric-block-view-api-v2")
 	includeModule("fabric-lifecycle-events-v1")
 	includeModule("fabric-transitive-access-wideners-v1")
 }
@@ -78,11 +84,7 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 java {
-	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-	// if it is present.
-	// If you remove this line, sources will not be generated.
 	withSourcesJar()
-
 	sourceCompatibility = JavaVersion.VERSION_21
 	targetCompatibility = JavaVersion.VERSION_21
 }
@@ -93,20 +95,11 @@ jar {
 	}
 }
 
-// configure the maven publication
 publishing {
 	publications {
 		create("mavenJava", MavenPublication) {
 			artifactId = project.archives_base_name
 			from components.java
 		}
-	}
-
-	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-	repositories {
-		// Add repositories to publish to here.
-		// Notice: This block does NOT have the same function as the block in the top level.
-		// The repositories here will be used for publishing your artifact, not for
-		// retrieving dependencies.
 	}
 }
